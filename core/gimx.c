@@ -4,6 +4,7 @@
  */
 
 #include <locale.h> //internationalization
+#include <stdlib.h>
 #include <signal.h> //to catch SIGINT
 #include <errno.h> //to print errors
 #include <string.h> //to print errors

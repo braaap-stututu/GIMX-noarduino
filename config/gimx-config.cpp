@@ -611,6 +611,13 @@ static bool ToDouble(const wxString & from, double * to, const wxString & decima
 configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribute__((unused)))
 {
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
+#ifndef WIN32
+    // GIMX_LOCALEDIR: set by the portable Linux bundle
+    if (getenv("GIMX_LOCALEDIR") != NULL)
+    {
+        locale->AddCatalogLookupPathPrefix(wxString(getenv("GIMX_LOCALEDIR"), wxConvUTF8));
+    }
+#endif
 #ifdef WIN32
     locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
 #endif

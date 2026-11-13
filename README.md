@@ -77,3 +77,32 @@ The binaries and the DLLs they need end up in `setup/`. Later builds only need
 
 Every push also builds Windows binaries on GitHub Actions (`.github/workflows/windows-build.yml`):
 download the `gimx-windows` artifact from the run in the Actions tab.
+
+Portable Linux bundle (Fedora)
+------------------------------
+
+A self-contained tarball that runs from any folder, without installing GIMX system-wide.
+Every push builds it on GitHub Actions (`.github/workflows/linux-portable.yml`, built on Fedora 43,
+tested on Fedora 43 and the latest Fedora): download the `gimx-portable-linux` artifact from the run.
+
+To use it:
+
+```
+tar -xzf gimx-portable-*.tar.gz
+cd gimx-portable-*/
+./setup.sh          # once: runtime packages, /dev/uinput access, input/dialout groups, menu entry
+# log out and back in, then start "GIMX" from the applications menu, or:
+./bin/gimx-launcher
+```
+
+To build it yourself on Fedora:
+
+```
+scripts/build-portable-linux.sh --deps   # installs the build dependencies, then builds
+```
+
+The bundle is written to `dist/`. It is not setuid root like a regular install, so the Bluetooth
+outputs are not available and GIMX runs without real-time priority. See `README.txt` in the bundle.
+
+Note: the launcher's self-update (which would replace this build with the official GIMX release)
+is disabled; build with `-DGIMX_UPSTREAM_UPDATES` to turn it back on.

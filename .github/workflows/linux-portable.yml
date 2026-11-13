@@ -1,0 +1,55 @@
+name: Linux portable build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Build on the oldest Fedora the bundle has to run on.
+    container: registry.fedoraproject.org/fedora:43
+    steps:
+      - name: Install git
+        run: dnf install -y git
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          scripts/build-portable-linux.sh --deps
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gimx-portable-linux
+          path: dist/*.tar.gz
+
+  test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        fedora: ["43", "latest"]
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:${{ matrix.fedora }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: gimx-portable-linux
+
+      - name: Check the bundle on a fresh Fedora
+        run: |
+          tar -xzf gimx-portable-*.tar.gz
+          cd gimx-portable-*/
+          ./setup.sh --deps
+          unresolved="$(LD_LIBRARY_PATH="$PWD/lib" ldd libexec/* lib/*.so* | grep 'not found' | sort -u || true)"
+          if [ -n "$unresolved" ]; then
+            echo "Unresolved libraries:"
+            echo "$unresolved"
+            exit 1
+          fi
+          bin/gimx -v

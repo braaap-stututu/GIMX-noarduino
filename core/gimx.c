@@ -232,7 +232,9 @@ int main(int argc, char *argv[])
 
   setlocale( LC_ALL, "" );
 #ifndef WIN32
-  bindtextdomain( "gimx", "/usr/share/locale" );
+  // GIMX_LOCALEDIR: set by the portable Linux bundle
+  const char * localedir = getenv("GIMX_LOCALEDIR");
+  bindtextdomain( "gimx", localedir ? localedir : "/usr/share/locale" );
 #else
   bindtextdomain( "gimx", "share/locale" );
 #endif

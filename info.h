@@ -25,6 +25,12 @@
   #define INFO_ARCH ""
 #endif
 
+/*
+ * The launcher's self-update downloads the official GIMX release from gimx.fr, which would replace
+ * this build (and its software-only adapter). It is disabled unless GIMX_UPSTREAM_UPDATES is defined.
+ */
+#ifdef GIMX_UPSTREAM_UPDATES
+
 #define VERSION_URL "https://gimx.fr/download/version"
 
 #ifdef WIN32
@@ -50,5 +56,7 @@
 #endif
 
 #endif
+
+#endif /* GIMX_UPSTREAM_UPDATES */
 
 #endif /* INFO_H_ */

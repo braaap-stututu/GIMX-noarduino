@@ -13,10 +13,12 @@
 //*)
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <dirent.h>
 #include <iostream>
 #include <sstream>
+
 #include <limits.h>
 #include <string.h>
 
@@ -34,6 +36,21 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #endif
+
+/*
+ * GIMX_FIRMWARE_DIR: set by the portable Linux bundle.
+ */
+static wxString firmwareDir()
+{
+#ifndef WIN32
+    const char * dir = getenv("GIMX_FIRMWARE_DIR");
+    if (dir != NULL)
+    {
+        return wxString(dir, wxConvUTF8);
+    }
+#endif
+    return wxString(FIRMWARE_DIR, wxConvUTF8);
+}
 
 #include <gimxtime/include/gtime.h>
 
@@ -124,7 +141,7 @@ loaderFrame::loaderFrame(wxString firmware,wxWindow* parent,wxWindowID id __attr
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&loaderFrame::OnAbout);
     //*)
 
-    wxString fw = wxT(FIRMWARE_DIR);
+    wxString fw = firmwareDir();
 
     wxDir dir(fw);
 
@@ -274,7 +291,7 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
 #endif
     command.Append(wxString::Format(wxT("%i"), i));
     command.Append(wxT(" -D -U flash:w:"));
-    command.Append(wxT(FIRMWARE_DIR));
+    command.Append(firmwareDir());
     command.Append(wxT("/"));
     command.Append(ChoiceFirmware->GetStringSelection());
     command.Append(wxT(":i"));

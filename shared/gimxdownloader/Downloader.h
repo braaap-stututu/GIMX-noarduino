@@ -8,6 +8,7 @@
 
 #include <string>
 #include <ctime>
+#include <cstdint>
 
 typedef void CURL;
 

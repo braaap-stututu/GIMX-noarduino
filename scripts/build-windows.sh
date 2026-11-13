@@ -97,9 +97,11 @@ trap 'rm -rf "$TOOLS"' EXIT
 
 # The code base predates the current MSYS2 compilers: build as C17 and don't turn their new warnings into errors.
 # -Wno-error has to come last to override the -Werror of the Makefiles.
+# SDL_HAPTIC_FIRST_AXIS comes from the patched SDL2 GIMX used to ship, stock SDL2 (>= 2.26) has the equivalent
+# SDL_HAPTIC_STEERING_AXIS (force applied on the first axis only, for wheels).
 cat > "$TOOLS/gcc-gimx" <<'EOF'
 #!/bin/sh
-exec gcc -std=gnu17 "$@" -Wno-error
+exec gcc -std=gnu17 -DSDL_HAPTIC_FIRST_AXIS=SDL_HAPTIC_STEERING_AXIS "$@" -Wno-error
 EOF
 cat > "$TOOLS/g++-gimx" <<'EOF'
 #!/bin/sh

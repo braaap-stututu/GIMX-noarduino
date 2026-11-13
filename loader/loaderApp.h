@@ -23,7 +23,7 @@ class loaderApp : public wxApp
 
 static const wxCmdLineEntryDesc g_cmdLineDesc [] =
 {
-     { wxCMD_LINE_OPTION, wxT_2("f"), _("firmware"), _("specifies a firmware to load"),
+     { wxCMD_LINE_OPTION, wxT_2("f"), wxT_2("firmware"), wxT_2("specifies a firmware to load"),
          wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
 
      { wxCMD_LINE_NONE, NULL, NULL, NULL, wxCMD_LINE_VAL_NONE, 0 }

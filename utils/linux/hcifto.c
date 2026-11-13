@@ -11,6 +11,7 @@
  * http://people.csail.mit.edu/albert/bluez-intro/x559.html#bzi-l2cap-unreliable
  */
 
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>

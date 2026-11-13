@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include <connectors/bluetooth/l2cap_abs.h>
 #include <gimx.h>
 #include <gimxpoll/include/gpoll.h>

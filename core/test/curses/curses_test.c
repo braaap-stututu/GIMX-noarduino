@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include <gimxcommon/include/gperf.h>

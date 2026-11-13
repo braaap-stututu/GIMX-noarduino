@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <stdlib.h>
 #include "sockets.h"
 #include <gimxfile/include/gfile.h>
 #include <stdio.h>

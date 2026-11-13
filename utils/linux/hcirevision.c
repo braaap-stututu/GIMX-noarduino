@@ -5,6 +5,7 @@
  This has been extracted from the hciconfig.c and csr.c files of the bluez tools.
  */
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include <limits.h>
 #include <stdio.h>
 

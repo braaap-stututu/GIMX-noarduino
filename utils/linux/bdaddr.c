@@ -22,6 +22,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
+#include <string.h>
 #include <config.h>
 #endif
 

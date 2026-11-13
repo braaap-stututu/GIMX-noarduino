@@ -5,6 +5,7 @@
  This source code is highly inspired by the bluez source code.
  */
 
+#include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>

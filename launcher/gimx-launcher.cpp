@@ -1200,8 +1200,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #ifndef WIN32
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
-    Output->Append(_(VIRTUAL_NAME));
 #endif
+    Output->Append(_(VIRTUAL_NAME));
 
     Output->Append(_("Stub"));
 

@@ -12,12 +12,12 @@ Links:
 * Licence: [GPLv3](https://www.gnu.org/copyleft/gpl.html)  
 * [Donations](https://blog.gimx.fr/give/gimx-donations-current/)
 
-Software-only mode (no adapter, Linux)
---------------------------------------
+Software-only mode (no adapter)
+-------------------------------
 
 When the controller is meant for the computer GIMX runs on (PC games, emulators, Steam,
 Remote Play / streaming clients), the USB adapter is not needed: GIMX can create a virtual
-controller on the local machine through the Linux `uinput` subsystem.
+controller on the local machine, through `uinput` on Linux or the ViGEmBus driver on Windows.
 
 ```
 gimx --config "My config.xml" --type 360pad --port virtual   # Xbox 360 pad (default type)
@@ -33,6 +33,8 @@ In gimx-launcher, select the output **Virtual controller (no adapter)** and pick
 * Rumble requested by the game on the virtual controller is forwarded to the physical joystick
   bound to it in the config, if that joystick supports rumble.
 
+### Linux
+
 GIMX needs write access to `/dev/uinput`. Load the module and allow the `input` group to use it:
 
 ```
@@ -43,5 +45,35 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 sudo usermod -aG input $USER   # then log out and back in
 ```
 
+### Windows
+
+* Install the ViGEmBus driver: https://github.com/nefarius/ViGEmBus/releases
+* GIMX must be built with the ViGEmBus client library: put the sources of
+  https://github.com/nefarius/ViGEmClient in `shared/ViGEmClient` before building
+  (see below). Without it, GIMX builds fine but the virtual controller is disabled.
+* With `360pad`, games see a regular Xbox 360 controller (XInput). With `DS4`, the full DS4
+  report is forwarded, including touchpad and motion.
+* If the physical gamepad also shows up in games, HidHide
+  (https://github.com/nefarius/HidHide) can hide it from everything except GIMX.
+
+### Limits
+
 This mode cannot replace the adapter for a console: a PC has no USB device-mode port, so it
 cannot present itself to a PlayStation or Xbox as a controller.
+
+Building on Windows
+-------------------
+
+Install MSYS2 (https://www.msys2.org/), open the **MSYS2 MINGW64** shell, then:
+
+```
+git clone --recursive https://github.com/braaap-stututu/gimx-noarduino.git
+cd gimx-noarduino
+scripts/build-windows.sh --deps   # installs the build dependencies, then builds
+```
+
+The binaries and the DLLs they need end up in `setup/`. Later builds only need
+`scripts/build-windows.sh`.
+
+Every push also builds Windows binaries on GitHub Actions (`.github/workflows/windows-build.yml`):
+download the `gimx-windows` artifact from the run in the Actions tab.

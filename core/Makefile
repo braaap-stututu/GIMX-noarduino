@@ -86,6 +86,21 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/bluetooth/windows/*.c))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif
 
+# Software-only adapter on Windows: ViGEmBus client library (https://github.com/nefarius/ViGEmClient).
+# It is optional: put its sources in ../shared/ViGEmClient to enable the virtual controller.
+ifeq ($(OS),Windows_NT)
+VIGEM_DIR = ../shared/ViGEmClient
+ifneq ($(wildcard $(VIGEM_DIR)/src/ViGEmClient.cpp),)
+CPPFLAGS += -DHAVE_VIGEM -isystem $(VIGEM_DIR)/include
+OBJECTS += vigem/ViGEmClient.o
+LDLIBS += -lsetupapi -lstdc++ -lpthread
+
+vigem/ViGEmClient.o: $(VIGEM_DIR)/src/ViGEmClient.cpp
+	mkdir -p vigem
+	$(CXX) -std=c++17 -O2 -I$(VIGEM_DIR)/include -c $< -o $@
+endif
+endif
+
 all: $(BINS)
 
 gimx: $(OBJECTS)

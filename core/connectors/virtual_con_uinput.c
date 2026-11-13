@@ -3,9 +3,9 @@
  License: GPLv3
  */
 
-#include <connectors/uinput_con.h>
-
 #ifndef WIN32
+
+#include <connectors/virtual_con.h>
 
 #include <controller.h>
 #include <gimx.h>
@@ -172,8 +172,8 @@ static struct
   unsigned short rumble_strong;
 } devices[MAX_CONTROLLERS];
 
-void uinput_con_init_static(void) __attribute__((constructor));
-void uinput_con_init_static(void)
+void virtual_con_init_static(void) __attribute__((constructor));
+void virtual_con_init_static(void)
 {
   unsigned int i;
   for (i = 0; i < MAX_CONTROLLERS; ++i)
@@ -195,7 +195,7 @@ static const s_profile * get_profile(e_controller_type ctype)
   return NULL;
 }
 
-int uinput_con_is_supported(e_controller_type ctype)
+int virtual_con_is_supported(e_controller_type ctype)
 {
   return get_profile(ctype) != NULL;
 }
@@ -341,7 +341,7 @@ static int close_callback(void * user)
   return -1;
 }
 
-int uinput_con_open(int adapter, e_controller_type ctype)
+int virtual_con_open(int adapter, e_controller_type ctype)
 {
   if (adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
@@ -440,7 +440,7 @@ static int stick_value(const s_profile * profile, int value)
   return clamp(profile->stick_min, value + profile->stick_offset, profile->stick_max);
 }
 
-int uinput_con_send(int adapter, const int axis[AXIS_MAX])
+int virtual_con_send(int adapter, const int axis[AXIS_MAX])
 {
   if (adapter < 0 || adapter >= MAX_CONTROLLERS || devices[adapter].fd < 0)
   {
@@ -515,7 +515,7 @@ int uinput_con_send(int adapter, const int axis[AXIS_MAX])
   return 0;
 }
 
-void uinput_con_close(int adapter)
+void virtual_con_close(int adapter)
 {
   if (adapter < 0 || adapter >= MAX_CONTROLLERS || devices[adapter].fd < 0)
   {
@@ -525,30 +525,6 @@ void uinput_con_close(int adapter)
   ioctl(devices[adapter].fd, UI_DEV_DESTROY);
   close(devices[adapter].fd);
   devices[adapter].fd = -1;
-}
-
-#else
-
-#include <gimxlog/include/glog.h>
-
-int uinput_con_is_supported(e_controller_type ctype __attribute__((unused)))
-{
-  return 0;
-}
-
-int uinput_con_open(int adapter __attribute__((unused)), e_controller_type ctype __attribute__((unused)))
-{
-  gerror("the virtual controller is only available on Linux.\n");
-  return -1;
-}
-
-int uinput_con_send(int adapter __attribute__((unused)), const int axis[AXIS_MAX] __attribute__((unused)))
-{
-  return -1;
-}
-
-void uinput_con_close(int adapter __attribute__((unused)))
-{
 }
 
 #endif

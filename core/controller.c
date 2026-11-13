@@ -16,7 +16,7 @@
 #include <connectors/protocol.h>
 #include <connectors/gpp_con.h>
 #include <connectors/usb_con.h>
-#include <connectors/uinput_con.h>
+#include <connectors/virtual_con.h>
 #include "connectors/sixaxis.h"
 #ifndef WIN32
 #include "connectors/btds4.h"
@@ -122,7 +122,7 @@ int adapter_set_port(unsigned char adapter, char* portname)
   {
     return -1;
   }
-  for(i = 0; i < adapter && strcmp(portname, UINPUT_CON_PORT); ++i)
+  for(i = 0; i < adapter && strcmp(portname, VIRTUAL_CON_PORT); ++i)
   {
     if(adapters[i].serial.portname && !strcmp(adapters[i].serial.portname, portname))
     {
@@ -1133,7 +1133,7 @@ e_gimx_status adapter_detect()
       {
         adapter->ctype = C_TYPE_360_PAD;
       }
-      if(!uinput_con_is_supported(adapter->ctype))
+      if(!virtual_con_is_supported(adapter->ctype))
       {
         gerror(_("controller type %s can't be emulated in software, use 360pad or DS4.\n"), controller_get_name(adapter->ctype));
         ret = E_GIMX_STATUS_GENERIC_ERROR;
@@ -1302,7 +1302,7 @@ int adapter_start()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_VIRTUAL)
     {
-      if(uinput_con_open(i, adapter->ctype) < 0)
+      if(virtual_con_open(i, adapter->ctype) < 0)
       {
         gerror(_("failed to create the virtual controller.\n"));
         ret = -1;
@@ -1536,7 +1536,7 @@ int adapter_send()
         {
           adapter->activation_button.pressed = 1;
         }
-        ret = uinput_con_send(i, adapter->axis);
+        ret = virtual_con_send(i, adapter->axis);
       }
 
       if(gimx_params.status)
@@ -1648,7 +1648,7 @@ e_gimx_status adapter_clean()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_VIRTUAL)
     {
-      uinput_con_close(i);
+      virtual_con_close(i);
     }
     if (adapter->ff_core != NULL) {
       haptic_core_clean(adapter->ff_core);

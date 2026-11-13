@@ -24,24 +24,58 @@ if [ "${MSYSTEM:-}" != "MINGW64" ]; then
   exit 1
 fi
 
-PACKAGES=(
-  make
-  git
-  gettext
-  mingw-w64-x86_64-gcc
-  mingw-w64-x86_64-pkgconf
-  mingw-w64-x86_64-SDL2
-  mingw-w64-x86_64-libxml2
-  mingw-w64-x86_64-curl
-  mingw-w64-x86_64-wxwidgets3.2-msw
-  mingw-w64-x86_64-ncurses
-  mingw-w64-x86_64-libusb
-  mingw-w64-x86_64-gettext
-  mingw-w64-x86_64-ntldd
-  mingw-w64-x86_64-avrdude
+# Package names change over time in MSYS2: each line lists alternatives, the first available one is installed.
+# Lines starting with '?' are optional.
+REQUIREMENTS=(
+  "make"
+  "git"
+  "gettext"
+  "mingw-w64-x86_64-gcc"
+  "mingw-w64-x86_64-pkgconf"
+  "mingw-w64-x86_64-SDL2"
+  "mingw-w64-x86_64-libxml2"
+  "mingw-w64-x86_64-curl"
+  "mingw-w64-x86_64-wxwidgets3.2-msw mingw-w64-x86_64-wxwidgets3.3-msw mingw-w64-x86_64-wxWidgets3.2 mingw-w64-x86_64-wxWidgets"
+  "mingw-w64-x86_64-ncurses"
+  "mingw-w64-x86_64-libusb mingw-w64-x86_64-libusb1 mingw-w64-x86_64-libusb-1.0"
+  "mingw-w64-x86_64-gettext-runtime mingw-w64-x86_64-gettext"
+  "mingw-w64-x86_64-gettext-tools mingw-w64-x86_64-gettext"
+  "mingw-w64-x86_64-ntldd mingw-w64-x86_64-ntldd-git"
+  "?mingw-w64-x86_64-avrdude avrdude" # only used to flash the hardware adapter
 )
 
 if [ "${1:-}" = "--deps" ]; then
+  pacman -Sy --noconfirm
+  PACKAGES=()
+  for requirement in "${REQUIREMENTS[@]}"; do
+    optional=0
+    if [ "${requirement:0:1}" = "?" ]; then
+      optional=1
+      requirement="${requirement:1}"
+    fi
+    found=""
+    for candidate in $requirement; do
+      if pacman -Si "$candidate" >/dev/null 2>&1; then
+        found="$candidate"
+        break
+      fi
+    done
+    if [ -n "$found" ]; then
+      PACKAGES+=("$found")
+    else
+      first="${requirement%% *}"
+      echo "warning: no package found for: $requirement" >&2
+      echo "  close matches:" >&2
+      pacman -Ssq "${first#mingw-w64-x86_64-}" 2>/dev/null | grep -i "^mingw-w64-x86_64-" | head -n 10 | sed 's/^/    /' >&2 || true
+      if [ "$optional" = 0 ]; then
+        MISSING=1
+      fi
+    fi
+  done
+  if [ -n "${MISSING:-}" ]; then
+    echo "error: some required packages were not found" >&2
+    exit 1
+  fi
   pacman -S --needed --noconfirm "${PACKAGES[@]}"
 fi
 

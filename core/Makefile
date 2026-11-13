@@ -86,6 +86,8 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/bluetooth/windows/*.c))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif
 
+.DEFAULT_GOAL := all
+
 # Software-only adapter on Windows: ViGEmBus client library (https://github.com/nefarius/ViGEmClient).
 # It is optional: put its sources in ../shared/ViGEmClient to enable the virtual controller.
 ifeq ($(OS),Windows_NT)

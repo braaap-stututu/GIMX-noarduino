@@ -103,7 +103,7 @@ cp launcher/gimx-launcher.png "$DIST/share/icons/"
 # Bundle the shared libraries the programs need, except the ones that must come from the system:
 # the C library and compiler runtime, and the desktop/graphics stack (GTK, X11, OpenGL, fonts...),
 # which has to match the running session, plus base libraries that are on every install and keep
-# a stable ABI.
+# a stable ABI. OpenSSL is bundled: Fedora 45 moved to a new major version (libssl.so.4).
 #
 SYSTEM_LIBS='^(ld-linux.*|linux-vdso.*|libc|libm|libdl|libpthread|librt|libresolv|libutil|libanl|libmvec|libstdc\+\+|libgcc_s|libatomic'
 SYSTEM_LIBS+='|libGL.*|libEGL|libGLX.*|libGLdispatch|libOpenGL|libgbm|libdrm.*|libvulkan|libwayland-.*|libxkbcommon.*|libX.*|libxcb.*|libSM|libICE'
@@ -111,7 +111,7 @@ SYSTEM_LIBS+='|libgtk-3|libgdk-3|libgdk_pixbuf-2\.0|libglib-2\.0|libgobject-2\.0
 SYSTEM_LIBS+='|libpango.*|libcairo.*|libharfbuzz.*|libfontconfig|libfreetype|libfribidi|libthai|libdatrie|libgraphite2|libpixman-1|libepoxy|libatk.*|libatspi|libcloudproviders|libtracker.*'
 SYSTEM_LIBS+='|libdbus-1|libsystemd|libudev|libselinux|libmount|libblkid|libuuid|libcap|libseccomp|libffi|libpcre2-8|libexpat'
 SYSTEM_LIBS+='|libz|libbz2|liblzma|libzstd|liblz4|libbrotli.*|libpng16|libjpeg|libtiff|libwebp.*|libsharpyuv|libjbig|libLerc|libdeflate'
-SYSTEM_LIBS+='|libssl|libcrypto|libgnutls|libnettle|libhogweed|libgmp|libp11-kit|libtasn1|libidn2|libunistring|libgcrypt|libgpg-error'
+SYSTEM_LIBS+='|libgnutls|libnettle|libhogweed|libgmp|libp11-kit|libtasn1|libidn2|libunistring|libgcrypt|libgpg-error'
 SYSTEM_LIBS+='|libgssapi_krb5|libkrb5|libk5crypto|libkrb5support|libcom_err|libkeyutils|libtinfo|libncursesw|libncurses|libformw|libmenuw|libpanelw|libasound|libpulse.*)\.so'
 
 bundle_deps() {

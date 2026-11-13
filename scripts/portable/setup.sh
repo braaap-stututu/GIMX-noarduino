@@ -21,7 +21,7 @@ set -euo pipefail
 ROOT="$(dirname "$(readlink -f "$0")")"
 TARGET_USER="${SUDO_USER:-$(id -un)}"
 
-RUNTIME_PACKAGES=(gtk3 libX11 libXi ncurses-libs libxml2 libcurl openssl-libs libusb1 bluez-libs xterm)
+RUNTIME_PACKAGES=(gtk3 libX11 libXi ncurses-libs libxml2 libcurl libusb1 bluez-libs xterm)
 
 UDEV_RULE_FILE=/etc/udev/rules.d/60-gimx-uinput.rules
 UDEV_RULE='KERNEL=="uinput", SUBSYSTEM=="misc", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput", TAG+="uaccess"'
@@ -33,7 +33,7 @@ fi
 
 install_deps() {
   if ! command -v rpm >/dev/null 2>&1 || ! command -v dnf >/dev/null 2>&1; then
-    echo "Not a dnf-based distribution: make sure GTK 3, libXi, ncurses, libxml2, libcurl, OpenSSL, libusb, bluez-libs and xterm are installed."
+    echo "Not a dnf-based distribution: make sure GTK 3, libXi, ncurses, libxml2, libcurl, libusb, bluez-libs and xterm are installed."
     return
   fi
   local missing=()

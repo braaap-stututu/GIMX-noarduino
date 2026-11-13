@@ -48,9 +48,8 @@ sudo usermod -aG input $USER   # then log out and back in
 ### Windows
 
 * Install the ViGEmBus driver: https://github.com/nefarius/ViGEmBus/releases
-* GIMX must be built with the ViGEmBus client library: put the sources of
-  https://github.com/nefarius/ViGEmClient in `shared/ViGEmClient` before building
-  (see below). Without it, GIMX builds fine but the virtual controller is disabled.
+* The ViGEmBus client library (https://github.com/nefarius/ViGEmClient, MIT license) is included
+  as the `shared/ViGEmClient` submodule and built into gimx.exe.
 * With `360pad`, games see a regular Xbox 360 controller (XInput). With `DS4`, the full DS4
   report is forwarded, including touchpad and motion.
 * If the physical gamepad also shows up in games, HidHide

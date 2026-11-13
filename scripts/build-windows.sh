@@ -9,10 +9,9 @@
 #
 # The result (gimx.exe, gimx-launcher.exe, ... and the DLLs they need) is put in the setup/ folder.
 #
-# The virtual controller (--port virtual, "Virtual controller (no adapter)" in the launcher) is only
-# built in when the ViGEmBus client library sources are in shared/ViGEmClient
-# (https://github.com/nefarius/ViGEmClient). It also needs the ViGEmBus driver installed on the PC
-# that runs GIMX (https://github.com/nefarius/ViGEmBus/releases).
+# The virtual controller (--port virtual, "Virtual controller (no adapter)" in the launcher) is built
+# with the ViGEmBus client library (shared/ViGEmClient submodule). It needs the ViGEmBus driver
+# installed on the PC that runs GIMX (https://github.com/nefarius/ViGEmBus/releases).
 #
 
 set -euo pipefail

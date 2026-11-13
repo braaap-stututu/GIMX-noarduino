@@ -43,3 +43,6 @@
 [submodule "shared/gimxudp"]
 	path = shared/gimxudp
 	url = https://github.com/matlo/gimxudp.git
+[submodule "shared/ViGEmClient"]
+	path = shared/ViGEmClient
+	url = https://github.com/nefarius/ViGEmClient.git

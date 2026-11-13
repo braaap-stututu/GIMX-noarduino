@@ -2,7 +2,7 @@
 #
 # Build GIMX for Windows.
 #
-# Run it from an MSYS2 "MINGW64" shell (https://www.msys2.org/):
+# Run it from an MSYS2 "UCRT64" shell (https://www.msys2.org/). "MINGW64" works too if its packages are still available.
 #
 #   scripts/build-windows.sh --deps   # first time: install the build dependencies with pacman
 #   scripts/build-windows.sh          # build
@@ -19,29 +19,35 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-if [ "${MSYSTEM:-}" != "MINGW64" ]; then
-  echo "error: run this script from an MSYS2 MINGW64 shell" >&2
-  exit 1
-fi
+case "${MSYSTEM:-}" in
+  UCRT64|MINGW64) ;;
+  *)
+    echo "error: run this script from an MSYS2 UCRT64 shell" >&2
+    exit 1
+    ;;
+esac
+
+P="$MINGW_PACKAGE_PREFIX" # e.g. mingw-w64-ucrt-x86_64
 
 # Package names change over time in MSYS2: each line lists alternatives, the first available one is installed.
+# Names starting with '-' get the environment prefix (e.g. mingw-w64-ucrt-x86_64-gcc), the others are MSYS packages.
 # Lines starting with '?' are optional.
 REQUIREMENTS=(
   "make"
   "git"
   "gettext"
-  "mingw-w64-x86_64-gcc"
-  "mingw-w64-x86_64-pkgconf"
-  "mingw-w64-x86_64-SDL2"
-  "mingw-w64-x86_64-libxml2"
-  "mingw-w64-x86_64-curl"
-  "mingw-w64-x86_64-wxwidgets3.2-msw mingw-w64-x86_64-wxwidgets3.3-msw mingw-w64-x86_64-wxWidgets3.2 mingw-w64-x86_64-wxWidgets"
-  "mingw-w64-x86_64-ncurses"
-  "mingw-w64-x86_64-libusb mingw-w64-x86_64-libusb1 mingw-w64-x86_64-libusb-1.0"
-  "mingw-w64-x86_64-gettext-runtime mingw-w64-x86_64-gettext"
-  "mingw-w64-x86_64-gettext-tools mingw-w64-x86_64-gettext"
-  "mingw-w64-x86_64-ntldd mingw-w64-x86_64-ntldd-git"
-  "?mingw-w64-x86_64-avrdude avrdude" # only used to flash the hardware adapter
+  "-gcc"
+  "-pkgconf"
+  "-SDL2"
+  "-libxml2"
+  "-curl"
+  "-wxwidgets3.2-msw -wxwidgets3.3-msw -wxWidgets3.2 -wxWidgets"
+  "-ncurses"
+  "-libusb -libusb1"
+  "-gettext-runtime -gettext"
+  "-gettext-tools -gettext"
+  "-ntldd -ntldd-git"
+  "?-avrdude avrdude" # only used to flash the hardware adapter
 )
 
 if [ "${1:-}" = "--deps" ]; then
@@ -55,6 +61,9 @@ if [ "${1:-}" = "--deps" ]; then
     fi
     found=""
     for candidate in $requirement; do
+      if [ "${candidate:0:1}" = "-" ]; then
+        candidate="$P$candidate"
+      fi
       if pacman -Si "$candidate" >/dev/null 2>&1; then
         found="$candidate"
         break
@@ -64,9 +73,11 @@ if [ "${1:-}" = "--deps" ]; then
       PACKAGES+=("$found")
     else
       first="${requirement%% *}"
+      first="${first#-}"
+      keyword="${first%%[0-9.-]*}"
       echo "warning: no package found for: $requirement" >&2
-      echo "  close matches:" >&2
-      pacman -Ssq "${first#mingw-w64-x86_64-}" 2>/dev/null | grep -i "^mingw-w64-x86_64-" | head -n 10 | sed 's/^/    /' >&2 || true
+      echo "  packages matching '$keyword':" >&2
+      pacman -Ssq "$keyword" 2>/dev/null | head -n 20 | sed 's/^/    /' >&2 || true
       if [ "$optional" = 0 ]; then
         MISSING=1
       fi
@@ -98,7 +109,7 @@ chmod +x "$TOOLS/gcc-gimx" "$TOOLS/g++-gimx"
 
 # wxWidgets 3.2 packages may only provide a versioned wx-config.
 if ! command -v wx-config >/dev/null 2>&1; then
-  WXCONFIG="$(ls /mingw64/bin/wx-config* 2>/dev/null | head -n 1 || true)"
+  WXCONFIG="$(ls "$MINGW_PREFIX"/bin/wx-config* 2>/dev/null | head -n 1 || true)"
   if [ -z "$WXCONFIG" ]; then
     echo "error: wx-config not found, run: $0 --deps" >&2
     exit 1

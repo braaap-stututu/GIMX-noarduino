@@ -25,8 +25,8 @@ $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 ifeq ($(OS),Windows_NT)
-DLLS = $(shell ntldd -R {core,config,fpsconfig,launcher}/*.exe | grep mingw | sed "s/.*=> //g" | cut -d' ' -f 1 | sed 's/\\/\\\\/g' | xargs cygpath -u | sort | uniq)\
-	   $(shell ntldd -R shared/*/*.dll | grep mingw | sed "s/.*=> //g" | cut -d' ' -f 1 | sed 's/\\/\\\\/g' | xargs cygpath -u | sort | uniq)
+DLLS = $(shell ntldd -R {core,config,fpsconfig,launcher}/*.exe | grep -i "$(notdir $(MINGW_PREFIX))" | sed "s/.*=> //g" | cut -d' ' -f 1 | sed 's/\\/\\\\/g' | xargs cygpath -u | sort | uniq)\
+	   $(shell ntldd -R shared/*/*.dll | grep -i "$(notdir $(MINGW_PREFIX))" | sed "s/.*=> //g" | cut -d' ' -f 1 | sed 's/\\/\\\\/g' | xargs cygpath -u | sort | uniq)
 install: all
 	mkdir -p setup
 	for DLL in $(DLLS); \
@@ -54,13 +54,8 @@ install: all
   do \
     cp -u -f $$fw setup/firmware; \
   done
-ifeq ($(MSYSTEM),MINGW64)
-	-cp -u -f /mingw64/bin/avrdude.exe setup
-	-cp -u -f /mingw64/bin/avrdude.conf setup
-else
-	-cp -u -f /mingw32/bin/avrdude.exe setup
-	-cp -u -f /mingw32/bin/avrdude.conf setup
-endif
+	-cp -u -f $(MINGW_PREFIX)/bin/avrdude.exe setup
+	-cp -u -f $(MINGW_PREFIX)/bin/avrdude.conf setup
 
 .PHONY: subdirs $(DIRS)
 .PHONY: subdirs $(BUILDDIRS)

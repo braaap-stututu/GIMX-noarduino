@@ -64,7 +64,7 @@ cannot present itself to a PlayStation or Xbox as a controller.
 Building on Windows
 -------------------
 
-Install MSYS2 (https://www.msys2.org/), open the **MSYS2 MINGW64** shell, then:
+Install MSYS2 (https://www.msys2.org/), open the **MSYS2 UCRT64** shell, then:
 
 ```
 git clone --recursive https://github.com/braaap-stututu/gimx-noarduino.git

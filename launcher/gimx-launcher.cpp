@@ -104,6 +104,7 @@ using namespace std;
 #define STATUS_FILE "gimx.status"
 
 #define GPP_NAME "GPP/Cronus/Titan"
+#define VIRTUAL_NAME "Virtual controller (no adapter)"
 
 #define CONSOLETUNER_VID 0x2508
 
@@ -589,6 +590,26 @@ void launcherFrame::readStubs()
   {
     OutputChoice->SetSelection(OutputChoice->Append(controller_get_name((e_controller_type)type)));
   }
+
+  if(previous != wxEmptyString)
+  {
+    OutputChoice->SetSelection(OutputChoice->FindString(previous));
+  }
+  if(OutputChoice->GetSelection() < 0)
+  {
+    OutputChoice->SetSelection(0);
+  }
+}
+
+void launcherFrame::readVirtualTypes()
+{
+  wxString previous = OutputChoice->GetStringSelection();
+
+  OutputChoice->Clear();
+
+  // controller types that can be emulated without a hardware adapter
+  OutputChoice->Append(controller_get_name(C_TYPE_360_PAD));
+  OutputChoice->Append(controller_get_name(C_TYPE_DS4));
 
   if(previous != wxEmptyString)
   {
@@ -1179,6 +1200,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #ifndef WIN32
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
+    Output->Append(_(VIRTUAL_NAME));
 #endif
 
     Output->Append(_("Stub"));
@@ -1478,7 +1500,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     }
 #endif
 
-    if(Output->GetStringSelection() == _("Stub"))
+    if(Output->GetStringSelection() == _("Stub") || Output->GetStringSelection() == _(VIRTUAL_NAME))
     {
       command.Append(wxT(" -t \""));
       command.Append(outputSelection);
@@ -1595,6 +1617,10 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       command.Append(wxT("/dev/"));
 #endif
       command.Append(outputSelection);
+    }
+    else if(Output->GetStringSelection() == _(VIRTUAL_NAME))
+    {
+      command.Append(wxT(" --port virtual"));
     }
     else if(Output->GetStringSelection() == _(GPP_NAME))
     {
@@ -1981,6 +2007,14 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
       OutputText->SetLabel(_("Type"));
 
       readStubs();
+    }
+    else if(Output->GetStringSelection() == _(VIRTUAL_NAME))
+    {
+      OutputSizer->Show(true);
+      OutputNewButton->Show(false);
+      OutputText->SetLabel(_("Type"));
+
+      readVirtualTypes();
     }
 
     refreshGui();

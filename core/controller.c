@@ -16,6 +16,7 @@
 #include <connectors/protocol.h>
 #include <connectors/gpp_con.h>
 #include <connectors/usb_con.h>
+#include <connectors/uinput_con.h>
 #include "connectors/sixaxis.h"
 #ifndef WIN32
 #include "connectors/btds4.h"
@@ -121,7 +122,7 @@ int adapter_set_port(unsigned char adapter, char* portname)
   {
     return -1;
   }
-  for(i = 0; i < adapter; ++i)
+  for(i = 0; i < adapter && strcmp(portname, UINPUT_CON_PORT); ++i)
   {
     if(adapters[i].serial.portname && !strcmp(adapters[i].serial.portname, portname))
     {
@@ -1126,6 +1127,22 @@ e_gimx_status adapter_detect()
         }
       }
     }
+    else if(adapter->atype == E_ADAPTER_TYPE_VIRTUAL)
+    {
+      if(adapter->ctype == C_TYPE_NONE)
+      {
+        adapter->ctype = C_TYPE_360_PAD;
+      }
+      if(!uinput_con_is_supported(adapter->ctype))
+      {
+        gerror(_("controller type %s can't be emulated in software, use 360pad or DS4.\n"), controller_get_name(adapter->ctype));
+        ret = E_GIMX_STATUS_GENERIC_ERROR;
+      }
+      else
+      {
+        ginfo(_("Software adapter, controller type is: %s.\n"), controller_get_name(adapter->ctype));
+      }
+    }
 #ifndef WIN32
     else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
     {
@@ -1281,6 +1298,14 @@ int adapter_start()
         {
           gerror(_("unsupported bluetooth controller type.\n"));
         }
+      }
+    }
+    else if(adapter->atype == E_ADAPTER_TYPE_VIRTUAL)
+    {
+      if(uinput_con_open(i, adapter->ctype) < 0)
+      {
+        gerror(_("failed to create the virtual controller.\n"));
+        ret = -1;
       }
     }
     else if(adapter->atype == E_ADAPTER_TYPE_GPP)
@@ -1505,6 +1530,14 @@ int adapter_send()
       {
         ret = gpp_send(i, adapter->ctype, adapter->axis);
       }
+      else if(adapter->atype == E_ADAPTER_TYPE_VIRTUAL)
+      {
+        if (adapter->activation_button.index != 0 && adapter->axis[adapter->activation_button.index] != 0)
+        {
+          adapter->activation_button.pressed = 1;
+        }
+        ret = uinput_con_send(i, adapter->axis);
+      }
 
       if(gimx_params.status)
       {
@@ -1612,6 +1645,10 @@ e_gimx_status adapter_clean()
     else if(adapter->atype == E_ADAPTER_TYPE_GPP)
     {
       gpp_disconnect(i);
+    }
+    else if(adapter->atype == E_ADAPTER_TYPE_VIRTUAL)
+    {
+      uinput_con_close(i);
     }
     if (adapter->ff_core != NULL) {
       haptic_core_clean(adapter->ff_core);

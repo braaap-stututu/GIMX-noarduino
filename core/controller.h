@@ -24,6 +24,7 @@ typedef enum {
     E_ADAPTER_TYPE_REMOTE_GIMX,
     E_ADAPTER_TYPE_GPP,
     E_ADAPTER_TYPE_PROXY,
+    E_ADAPTER_TYPE_VIRTUAL, // software-only: virtual controller on the local machine (no hardware adapter)
 } e_adapter_type;
 
 typedef struct {

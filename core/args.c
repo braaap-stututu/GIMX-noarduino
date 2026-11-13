@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #endif
 #include <connectors/protocol.h>
+#include <connectors/uinput_con.h>
 #include "../directories.h"
 #include <unistd.h>
 #include <limits.h>
@@ -53,6 +54,10 @@ static void usage()
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
   printf("  portname: The serial port. Ex: /dev/ttyUSB0 in Linux, COM4 in Windows.\n");
 
+#ifndef WIN32
+  printf("Software adapter (no hardware, Linux only): gimx --config filename --type 360pad|DS4 --port virtual\n");
+  printf("  Creates a virtual controller on this computer (uinput), for PC games. Default type: 360pad.\n");
+#endif
   printf("GPP/Cronus/Titan: gimx --config filename --type GPP\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
 
@@ -369,7 +374,12 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'p':
-        if(adapter_get(controller)->atype == E_ADAPTER_TYPE_NONE)
+        if(!strcmp(optarg, UINPUT_CON_PORT))
+        {
+          // software-only adapter: virtual controller on this computer
+          adapter_get(controller)->atype = E_ADAPTER_TYPE_VIRTUAL;
+        }
+        else if(adapter_get(controller)->atype == E_ADAPTER_TYPE_NONE)
         {
           // no adapter type specified => try to guess it from the port
           if(strstr(optarg, DEV_HIDRAW) || !strstr(optarg, DEV_SERIAL))
